@@ -29,14 +29,4 @@ with open('user_attributes_tr.csv', 'w', newline='') as csvfile:
         writer.writerow(user_attribute)
         
         
-        
-# User Event 
-#with open('user_events.csv', newline='') as csvfile:
- #   reader = csv.DictReader(csvfile)
-  #  user_events = []
-  #  for row in reader:
-   #     user_event = {}
-    #    user_event['user_id'] = int(row['id'])
-    #    user_event['event_name'] = row['eventName']
-    #    user_event['timestamp'] = row['timestamp']
-    #    user_events.append(user_event)
+
