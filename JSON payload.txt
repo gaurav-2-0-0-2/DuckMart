@@ -1,0 +1,30 @@
+{
+  "criteria": {
+    "table_name": "users",
+    "fields": ["user_id", "name", "age", "gender", "location", "signup_date", "subscription_plan", "device_type"],
+    "joins": {
+      "events": {
+        "join_type": "inner",
+        "join_on": "users.user_id = events.user_id"
+      }
+    },
+    "filters": [
+      {
+        "field": "age",
+        "operator": "between",
+        "values": [25, 34]
+      },
+      {
+        "field": "location",
+        "operator": "=",
+        "value": "California"
+      },
+      {
+        "field": "events.event_name",
+        "operator": "=",
+        "value": "LOGIN"
+      }
+    ],
+    "group_by": ["user_id"]
+  }
+}

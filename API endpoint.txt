@@ -1,0 +1,47 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const DuckDB = require('duckdb');
+
+const app = express();
+const db = new DuckDB();
+
+// parse application/json
+app.use(bodyParser.json());
+
+// endpoint to execute dynamic SQL query based on input criteria
+app.post('/segment', async (req, res) => {
+  try {
+    const { criteria } = req.body;
+
+    // build dynamic SQL query based on input criteria
+    let sql = 'SELECT * FROM users';
+    let whereClause = '';
+
+    for (const key in criteria) {
+      if (criteria.hasOwnProperty(key)) {
+        if (whereClause === '') {
+          whereClause += ` WHERE ${key} = '${criteria[key]}'`;
+        } else {
+          whereClause += ` AND ${key} = '${criteria[key]}'`;
+        }
+      }
+    }
+
+    if (whereClause !== '') {
+      sql += whereClause;
+    }
+
+    // execute SQL query
+    const result = await db.query(sql);
+
+    // return result as JSON
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error executing query');
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server listening on port 3000');
+});

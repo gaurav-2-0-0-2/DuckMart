@@ -1,0 +1,53 @@
+const express = require('express');
+const knex = require('knex')({
+  client: 'sqlite3',
+  connection: {
+    filename: 'my-db.duckdb'
+  }
+});
+
+const app = express();
+const port = 3000;
+
+// Define the route for the API endpoint
+app.post('/api/segment-users', async (req, res) => {
+  // Parse the JSON data from the request body
+  const criteria = req.body;
+
+  // Build the Knex.js query for selecting user data based on the given criteria
+  const userQuery = knex('user_table')
+    .where('id', criteria.id)
+    .where('name', criteria.name)
+    .whereBetween('age', [criteria.minAge, criteria.maxAge])
+    .where('gender', criteria.gender)
+    .where('location', criteria.location)
+    .whereBetween('signup_date', [criteria.minSignupDate, criteria.maxSignupDate])
+    .where('subscription_plan', criteria.subscriptionPlan)
+    .where('device_type', criteria.deviceType);
+
+  // Build the Knex.js query for selecting user event data based on the given criteria
+  const eventQuery = knex('event_table')
+    .where('id', criteria.id)
+    .where('event_name', criteria.eventName)
+    .whereBetween('timestamp', [criteria.minTimestamp, criteria.maxTimestamp]);
+
+  try {
+    // Execute the Knex.js queries and send the results as JSON
+    const [users, events] = await Promise.all([userQuery, eventQuery]);
+    const result = { users, events };
+    res.json(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error executing query');
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
+
+
+
+
+
+This API endpoint takes the segmentation criteria in a JSON format from the request body and builds Knex.js queries to filter the data from the user_table and event_table tables in the DuckDB database based on the given criteria. It then executes the Knex.js queries and sends the results as JSON back to the client. Note that you will need to install the knex and sqlite3 packages using npm to use this code. Also, you should modify the database connection configuration in the knex() function to match your database configuration.

@@ -1,0 +1,50 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const DuckDB = require('@duckdb/node');
+
+// initialize DuckDB connection
+const db = new DuckDB();
+
+// initialize express app
+const app = express();
+app.use(bodyParser.json());
+
+// define endpoint for handling segmentation requests
+app.post('/segmentation', async (req, res) => {
+  try {
+    const { users, events } = req.body;
+
+    // build SQL query for users
+    const userConditions = Object.keys(users)
+      .map((key) => `users.${key} = '${users[key]}'`)
+      .join(' AND ');
+    const userQuery = `SELECT user_id FROM users WHERE ${userConditions}`;
+
+    // build SQL query for events
+    const eventConditions = Object.keys(events)
+      .map((key) => `events.${key} = '${events[key]}'`)
+      .join(' AND ');
+    const eventQuery = `SELECT user_id FROM events WHERE ${eventConditions}`;
+
+    // combine user and event queries
+    const query = `
+      SELECT DISTINCT user_id
+      FROM (${userQuery}) AS users
+      INNER JOIN (${eventQuery}) AS events
+      ON users.user_id = events.user_id;
+    `;
+
+    // execute query and return results
+    const result = await db.all(query);
+    res.send(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Internal server error');
+  }
+});
+
+// start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
