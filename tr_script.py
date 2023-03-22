@@ -9,7 +9,6 @@ with open('user_attributes.csv', newline ='') as csvfile:
         user_attribute['user_id'] = int(row['id'])
         user_attribute['first_name'] = row['first_name']
         user_attribute['last_name'] = row['last_name']
-        user_attribute['email'] = row['email']
         user_attribute['age'] = int(row['age'])
         user_attribute['gender'] = row['gender']
         user_attribute['location'] = row['location']

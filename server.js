@@ -22,20 +22,32 @@
 import express from "express";
 import duckdb from "duckdb";
 const app = express();
-
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 const db = new duckdb.Database('my-db.duckdb');
-
-
 app.post('/segment', (req,res)=>{
+    //   console.log(req.body);  
     const data = req.body;
 
-    
+    // array of user attributes to loop through and check what the consumer have specified in JSON
+    const fields = ["user_id", "first_name", "last_name", "age", "gender", "location", "signUpDate", "subscriptionPlan", "deviceType"]
+    const userQuery = ` Select ${fields.filter((field)=>{ if(data.criteria.field === field){
+        return field;
+    }})} from user_table where ${data.criteria.age} between 25 and 34 `
+    console.log(userQuery);
+        db.all(userQuery, (err, res) => {
+        if (err) {
+            throw err;
+        } else {
+            console.log(res[0]);
+        }
 
-
-    
-
+    })
 })
 
+app.listen(3000, () => {
+    console.log("Server is Listening at port 3000");
+})
 
 
 
