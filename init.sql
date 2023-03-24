@@ -1,0 +1,2 @@
+INSTALL sqlite;
+LOAD sqlite;
